@@ -1,11 +1,12 @@
-package com.vendormanagement.vendor_management_system;
+package com.vendormanagement;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class VendorManagementSystemApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(VendorManagementSystemApplication.class, args);
-	}
-}
+
+    public static void main(String[] args) {
+        SpringApplication.run(VendorManagementSystemApplication.class, args);
+    }
+} 
