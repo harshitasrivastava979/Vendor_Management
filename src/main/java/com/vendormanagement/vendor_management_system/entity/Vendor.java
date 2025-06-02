@@ -1,13 +1,15 @@
 package com.vendormanagement.vendor_management_system.entity;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "vendors")
 public class Vendor extends BaseEntity {
-
+    
     @NotBlank(message = "Vendor name is required")
     @Column(nullable = false)
     private String name;
@@ -29,6 +31,10 @@ public class Vendor extends BaseEntity {
     @Column(name = "neft_enabled")
     private Boolean neftEnabled = false;
 
+    // ✅ One-to-Many for detailed relationship with extra data
+    @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<VendorService> vendorServices = new HashSet<>();
+
     // Constructors
     public Vendor() {}
 
@@ -38,7 +44,7 @@ public class Vendor extends BaseEntity {
         this.contact = contact;
     }
 
-    // Getters and Setters
+    // Getters & Setters
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
@@ -59,4 +65,29 @@ public class Vendor extends BaseEntity {
 
     public Boolean getNeftEnabled() { return neftEnabled; }
     public void setNeftEnabled(Boolean neftEnabled) { this.neftEnabled = neftEnabled; }
+
+    public void setVendorServices(Set<VendorService> vendorServices) {
+        this.vendorServices = vendorServices;
+    }
+
+    public void addService(ServiceType serviceType, BigDecimal tdsRate) {
+        VendorService vendorService = new VendorService(this, serviceType, tdsRate);
+        vendorServices.add(vendorService);
+        serviceType.getVendorServices().add(vendorService);
+    }
+
+    public void removeService(ServiceType serviceType) {
+        VendorService vendorService = vendorServices.stream()
+                .filter(vs -> vs.getServiceType().equals(serviceType))
+                .findFirst()
+                .orElse(null);
+        if (vendorService != null) {
+            vendorServices.remove(vendorService);
+            serviceType.getVendorServices().remove(vendorService);
+            vendorService.setVendor(null);
+            vendorService.setServiceType(null);
+        }
+    }
+
+
 }
