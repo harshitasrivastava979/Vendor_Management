@@ -6,7 +6,10 @@ import com.vendormanagement.vendor_management_system.mapper.ServiceTypeMap;
 import com.vendormanagement.vendor_management_system.repository.ServiceTypeRepository;
 import com.vendormanagement.vendor_management_system.service.ServiceTypeService;
 import org.springframework.stereotype.Service;
-    @Service
+import java.util.List;
+import java.util.UUID;
+
+@Service
     public class ServiceTypeImp implements ServiceTypeService {
 
         private final ServiceTypeRepository serviceTypeRepository;
@@ -25,5 +28,32 @@ import org.springframework.stereotype.Service;
             ServiceType serviceType = ServiceTypeMap.mapToEntity(dto);
             return serviceTypeRepository.save(serviceType);
         }
+        @Override
+        public List<ServiceType> getAllServiceTypes() {
+            return serviceTypeRepository.findAll();
+        }
+    @Override
+    public ServiceType getServiceTypeById(UUID id) {
+        return serviceTypeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ServiceType not found with id: " + id));
     }
+
+    @Override
+    public ServiceType updateServiceType(UUID id, ServiceTypeRequestDto dto) {
+        ServiceType existing = getServiceTypeById(id);
+        existing.setName(dto.getName());
+        return serviceTypeRepository.save(existing);
+    }
+
+    @Override
+    public void deleteServiceType(UUID id) {
+        ServiceType existing = getServiceTypeById(id);
+        serviceTypeRepository.delete(existing);
+    }
+    
+
+
+
+
+}
 

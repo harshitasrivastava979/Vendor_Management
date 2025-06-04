@@ -1,42 +1,58 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "vendor-management-frontend",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
   "main": "public/electron.js",
   "homepage": "./",
-  "proxy": "http://localhost:8080",
   "dependencies": {
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^13.5.0",
-    "electron-is-dev": "^2.0.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "axios": "^1.6.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "electron": "^36.3.2",
-    "electron-builder": "^26.0.12",
-    "wait-on": "^8.0.3"
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4",
+    "electron-is-dev": "^3.0.1",
+    "wait-on": "^7.2.0"
   },
   "scripts": {
-    "start": "concurrently \"npm run react-start\" \"npm run electron-start\"",
-    "react-start": "react-scripts start",
-    "electron-start": "wait-on http://localhost:3000 && electron .",
+    "start": "react-scripts start",
     "build": "react-scripts build",
-    "dist": "npm run build && electron-builder"
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && cross-env ELECTRON_IS_DEV=true electron .\"",
+    "electron-build": "npm run build && electron-builder",
+    "dist": "npm run build && electron-builder --publish=never"
   },
   "build": {
     "appId": "com.vendor.management",
+    "productName": "Vendor Management System",
+    "directories": {
+      "output": "dist"
+    },
     "files": [
       "build/**/*",
-      "public/electron.js"
+      "node_modules/**/*",
+      "public/electron.js",
+      "public/preload.js"
     ],
-    "directories": {
-      "buildResources": "assets"
+    "mac": {
+      "icon": "public/icons/icon.icns",
+      "category": "public.app-category.business"
+    },
+    "win": {
+      "icon": "public/icons/icon.ico",
+      "target": "nsis"
+    },
+    "linux": {
+      "icon": "public/icons/icon.png",
+      "target": "AppImage"
     }
   },
   "eslintConfig": {
