@@ -12,4 +12,5 @@ public interface VendorRepository extends JpaRepository<Vendor, UUID> {
     List<Vendor> findByNameContainingIgnoreCase(String name);
 
     boolean existsByName(String name);
+
 }
