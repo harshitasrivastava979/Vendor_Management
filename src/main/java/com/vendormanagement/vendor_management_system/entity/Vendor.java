@@ -1,5 +1,6 @@
 package com.vendormanagement.vendor_management_system.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
@@ -9,7 +10,7 @@ import java.util.Set;
 @Entity
 @Table(name = "vendors")
 public class Vendor extends BaseEntity {
-    
+
     @NotBlank(message = "Vendor name is required")
     @Column(nullable = false)
     private String name;
@@ -31,8 +32,8 @@ public class Vendor extends BaseEntity {
     @Column(name = "neft_enabled")
     private Boolean neftEnabled = false;
 
-    // ✅ One-to-Many for detailed relationship with extra data
     @OneToMany(mappedBy = "vendor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("vendor-services") // This manages the relationship
     private Set<VendorService> vendorServices = new HashSet<>();
 
     // Constructors
@@ -44,7 +45,7 @@ public class Vendor extends BaseEntity {
         this.contact = contact;
     }
 
-    // Getters & Setters
+    // All getters and setters remain the same...
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
@@ -66,9 +67,8 @@ public class Vendor extends BaseEntity {
     public Boolean getNeftEnabled() { return neftEnabled; }
     public void setNeftEnabled(Boolean neftEnabled) { this.neftEnabled = neftEnabled; }
 
-    public void setVendorServices(Set<VendorService> vendorServices) {
-        this.vendorServices = vendorServices;
-    }
+    public Set<VendorService> getVendorServices() { return vendorServices; }
+    public void setVendorServices(Set<VendorService> vendorServices) { this.vendorServices = vendorServices; }
 
     public void addService(ServiceType serviceType, BigDecimal tdsRate) {
         VendorService vendorService = new VendorService(this, serviceType, tdsRate);
@@ -88,6 +88,4 @@ public class Vendor extends BaseEntity {
             vendorService.setServiceType(null);
         }
     }
-
-
 }

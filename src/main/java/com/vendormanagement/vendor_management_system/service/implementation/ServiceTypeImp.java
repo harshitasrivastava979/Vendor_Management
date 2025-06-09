@@ -6,6 +6,8 @@ import com.vendormanagement.vendor_management_system.mapper.ServiceTypeMap;
 import com.vendormanagement.vendor_management_system.repository.ServiceTypeRepository;
 import com.vendormanagement.vendor_management_system.service.ServiceTypeService;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,10 +30,10 @@ import java.util.UUID;
             ServiceType serviceType = ServiceTypeMap.mapToEntity(dto);
             return serviceTypeRepository.save(serviceType);
         }
-        @Override
-        public List<ServiceType> getAllServiceTypes() {
-            return serviceTypeRepository.findAll();
-        }
+    @Override
+    public List<ServiceType> getAllServiceTypes() {
+        return serviceTypeRepository.findAll();
+    }
     @Override
     public ServiceType getServiceTypeById(UUID id) {
         return serviceTypeRepository.findById(id)

@@ -16,21 +16,18 @@ body {
   color: #333;
 }
 
-.App {
+.app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   flex-direction: column;
-  position: relative;
+  background-color: #f5f6fa;
 }
 
-/* Header Styles */
 .app-header {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, #2c3e50, #3498db);
   color: white;
   padding: 2rem 0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .header-content {
@@ -40,92 +37,76 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 2rem;
 }
 
 .header-text h1 {
+  margin: 0;
   font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #fff, #e3f2fd);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-weight: 600;
 }
 
 .header-text p {
-  font-size: 1.1rem;
+  margin: 0.5rem 0 0;
   opacity: 0.9;
-  font-weight: 300;
+  font-size: 1.1rem;
 }
 
 .header-stats {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   padding: 1rem;
-  border-radius: 12px;
+  border-radius: 10px;
   text-align: center;
-  min-width: 80px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: transform 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
+  min-width: 100px;
 }
 
 .stat-number {
-  font-size: 1.5rem;
-  margin-bottom: 0.25rem;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .stat-label {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   opacity: 0.9;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
-/* Main Content */
 .main-content {
   flex: 1;
-  padding: 2rem 0;
+  padding: 2rem;
 }
 
 .content-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
 }
 
 .content-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 400px 1fr;
   gap: 2rem;
   align-items: start;
-  min-height: 600px;
 }
 
-.form-section,
+.form-section {
+  position: sticky;
+  top: 2rem;
+}
+
 .list-section {
-  height: fit-content;
+  min-height: 500px;
 }
 
-/* Footer */
 .app-footer {
-  background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
-  padding: 1rem 0;
-  margin-top: auto;
+  background: #2c3e50;
+  color: white;
+  padding: 1.5rem 0;
+  margin-top: 2rem;
 }
 
 .footer-content {
@@ -135,34 +116,55 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.9rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-content p {
+  margin: 0;
 }
 
 .footer-links {
   display: flex;
+  gap: 1rem;
   align-items: center;
-  gap: 0.5rem;
+  opacity: 0.8;
 }
 
-/* Responsive Design */
 @media (max-width: 1200px) {
-  .header-content,
-  .content-container,
-  .footer-content {
-    padding: 0 1.5rem;
+  .content-grid {
+    grid-template-columns: 350px 1fr;
   }
 }
 
-@media (max-width: 968px) {
+@media (max-width: 992px) {
   .content-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
+  }
+
+  .form-section {
+    position: static;
   }
 
   .header-content {
     flex-direction: column;
     text-align: center;
-    gap: 1.5rem;
+  }
+
+  .header-stats {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .header-content,
+  .footer-content {
+    padding: 0 1rem;
   }
 
   .header-text h1 {
@@ -170,66 +172,13 @@ body {
   }
 
   .stat-card {
-    min-width: 70px;
+    min-width: 80px;
     padding: 0.75rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    padding: 1.5rem 0;
-  }
-
-  .header-content,
-  .content-container,
-  .footer-content {
-    padding: 0 1rem;
-  }
-
-  .header-text h1 {
-    font-size: 1.75rem;
-  }
-
-  .header-text p {
-    font-size: 1rem;
-  }
-
-  .header-stats {
-    flex-wrap: wrap;
-    justify-content: center;
   }
 
   .footer-content {
     flex-direction: column;
-    gap: 0.5rem;
     text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .app-header {
-    padding: 1.5rem 0;
-  }
-
-  .header-text h1 {
-    font-size: 1.5rem;
-  }
-
-  .stat-card {
-    min-width: 60px;
-    padding: 0.5rem;
-  }
-
-  .stat-number {
-    font-size: 1.2rem;
-  }
-
-  .stat-label {
-    font-size: 0.7rem;
-  }
-
-  .content-grid {
-    gap: 1.5rem;
   }
 }
 

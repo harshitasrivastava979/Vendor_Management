@@ -14,6 +14,7 @@ public class VendorRequestDto {
     private String ifsc;
     private Boolean neftEnabled;
     List<VendorServiceRequestDto> vendorServiceList ;
+//    static List<VendorServiceRequestDto> vendorServiceList ;
     public List<VendorServiceRequestDto> getVendorServiceList() {
         return vendorServiceList;
     }
