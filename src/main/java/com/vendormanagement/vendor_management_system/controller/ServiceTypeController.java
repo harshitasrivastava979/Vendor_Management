@@ -1,3 +1,5 @@
+package com.vendormanagement.vendor_management_system.controller;
+
 import com.vendormanagement.vendor_management_system.dto.ServiceTypeRequestDto;
 import com.vendormanagement.vendor_management_system.entity.ServiceType;
 import com.vendormanagement.vendor_management_system.service.ServiceTypeService;

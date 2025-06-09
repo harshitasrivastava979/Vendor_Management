@@ -1,29 +1,29 @@
 package com.vendormanagement.vendor_management_system.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Entity
 @Table(name = "vendor_services")
-public class VendorService {
+public class VendorService extends BaseEntity {
 
-    @Id
-    @GeneratedValue
-    private UUID id;
+//    , uniqueConstraints = @UniqueConstraint(columnNames = {"vendor_id", "service_id"}
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "vendor_id", nullable = false)
+    @JsonBackReference("vendor-services") // This prevents circular reference
     private Vendor vendor;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "service_id", nullable = false)
+    @JsonBackReference("service-vendors") // This prevents circular reference
     private ServiceType serviceType;
 
     @Column(name = "tds_rate", precision = 5, scale = 2)
     private BigDecimal tdsRate;
 
-    // Constructors, getters, and setters
+    // Constructors
     public VendorService() {}
 
     public VendorService(Vendor vendor, ServiceType serviceType, BigDecimal tdsRate) {
@@ -33,9 +33,6 @@ public class VendorService {
     }
 
     // Getters and setters
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
     public Vendor getVendor() { return vendor; }
     public void setVendor(Vendor vendor) { this.vendor = vendor; }
 

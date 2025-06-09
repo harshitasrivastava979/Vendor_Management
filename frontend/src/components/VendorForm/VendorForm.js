@@ -1,10 +1,8 @@
-// Update your src/components/VendorForm/VendorForm.js with this version
-
-import React, { useState } from 'react';
-import { vendorAPI } from '../../services/api.js';
+import React, { useState, useEffect } from 'react';
+import { vendorAPI, fetchServiceTypes } from '../../services/api.js';
 import './VendorForm.css';
 
-const VendorForm = ({ onVendorAdded }) => {
+ VendorForm = ({ onVendorAdded }) => {
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -15,15 +13,47 @@ const VendorForm = ({ onVendorAdded }) => {
     neftEnabled: false
   });
 
+  const [selectedServices, setSelectedServices] = useState([
+    { serviceTypeId: '', tdsRate: '' }
+  ]);
+  const [serviceTypeOptions, setServiceTypeOptions] = useState([]); // Initialize as empty array
+
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
   const [validationErrors, setValidationErrors] = useState({});
 
+  useEffect(() => {
+    const loadServiceTypes = async () => {
+      try {
+        console.log('🔄 Fetching service types...');
+        const serviceTypes = await fetchServiceTypes();
+        console.log('✅ Service types loaded:', serviceTypes);
+
+        // Ensure we always set an array
+        if (Array.isArray(serviceTypes)) {
+          setServiceTypeOptions(serviceTypes);
+        } else if (serviceTypes && Array.isArray(serviceTypes.data)) {
+          setServiceTypeOptions(serviceTypes.data);
+        } else if (serviceTypes && serviceTypes.serviceTypes && Array.isArray(serviceTypes.serviceTypes)) {
+          setServiceTypeOptions(serviceTypes.serviceTypes);
+        } else {
+          console.warn('Unexpected service types format:', serviceTypes);
+          setServiceTypeOptions([]); // Fallback to empty array
+        }
+      } catch (err) {
+        console.error('❌ Failed to fetch service types:', err);
+        setError('Failed to load service types. Please check if your backend is running.');
+        setServiceTypeOptions([]); // Ensure array on error
+      }
+    };
+
+    loadServiceTypes();
+  }, []);
+
   const validateForm = () => {
     const errors = {};
 
-    // Name validation
     if (!formData.name.trim()) {
       errors.name = 'Vendor name is required';
     } else if (formData.name.length < 2) {
@@ -32,12 +62,10 @@ const VendorForm = ({ onVendorAdded }) => {
       errors.name = 'Name cannot exceed 100 characters';
     }
 
-    // Contact validation (Indian mobile format)
     if (formData.contact && !/^[6-9]\d{9}$/.test(formData.contact)) {
       errors.contact = 'Invalid mobile number (10 digits starting with 6-9)';
     }
 
-    // GST validation (Indian format)
     if (formData.gstTanCin) {
       const gstRegex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
       if (!gstRegex.test(formData.gstTanCin)) {
@@ -45,14 +73,21 @@ const VendorForm = ({ onVendorAdded }) => {
       }
     }
 
-    // Bank account validation
     if (formData.bankAcc && !/^\d{9,18}$/.test(formData.bankAcc)) {
       errors.bankAcc = 'Bank account must be 9-18 digits';
     }
 
-    // IFSC validation
     if (formData.ifsc && !/^[A-Z]{4}0[A-Z0-9]{6}$/.test(formData.ifsc)) {
       errors.ifsc = 'Invalid IFSC format (ABCD0123456)';
+    }
+
+    // Validate services
+    const validServices = selectedServices.filter(service =>
+      service.serviceTypeId && service.tdsRate
+    );
+
+    if (validServices.length === 0) {
+      errors.services = 'At least one service with TDS rate is required';
     }
 
     return errors;
@@ -63,7 +98,6 @@ const VendorForm = ({ onVendorAdded }) => {
 
     let processedValue = value;
 
-    // Auto-uppercase for GST and IFSC
     if (name === 'gstTanCin' || name === 'ifsc') {
       processedValue = value.toUpperCase();
     }
@@ -73,7 +107,6 @@ const VendorForm = ({ onVendorAdded }) => {
       [name]: type === 'checkbox' ? checked : processedValue
     }));
 
-    // Clear validation error when user starts typing
     if (validationErrors[name]) {
       setValidationErrors(prev => ({
         ...prev,
@@ -85,7 +118,6 @@ const VendorForm = ({ onVendorAdded }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate form
     const errors = validateForm();
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
@@ -98,17 +130,24 @@ const VendorForm = ({ onVendorAdded }) => {
     setSuccess('');
     setValidationErrors({});
 
+    // Filter out empty services and convert tdsRate to number
+    const validServices = selectedServices
+      .filter(service => service.serviceTypeId && service.tdsRate)
+      .map(service => ({
+        serviceTypeId: service.serviceTypeId,
+        tdsRate: parseFloat(service.tdsRate)
+      }));
+
+    const payload = {
+      ...formData,
+      vendorServiceList: validServices
+    };
+
+    console.log('🚀 Sending payload:', payload);
+
     try {
-      console.log('📤 Sending vendor data to Spring Boot:', formData);
-
-      // Call real API
-      const createdVendor = await vendorAPI.createVendor(formData);
-
-      console.log('✅ Vendor created successfully:', createdVendor);
-
+      const createdVendor = await vendorAPI.createVendor(payload);
       setSuccess('Vendor created successfully!');
-
-      // Clear form
       setFormData({
         name: '',
         address: '',
@@ -118,8 +157,8 @@ const VendorForm = ({ onVendorAdded }) => {
         ifsc: '',
         neftEnabled: false
       });
+      setSelectedServices([{ serviceTypeId: '', tdsRate: '' }]);
 
-      // Notify parent component
       if (onVendorAdded) {
         onVendorAdded(createdVendor);
       }
@@ -132,15 +171,26 @@ const VendorForm = ({ onVendorAdded }) => {
     }
   };
 
-  // Test connection function
   const testConnection = async () => {
     setLoading(true);
     setError('');
     setSuccess('');
 
     try {
-      const result = await vendorAPI.testConnection();
-      setSuccess(`✅ Connection successful: ${result}`);
+      // Test both service types endpoint and vendor endpoint
+      const serviceTypes = await fetchServiceTypes();
+
+      // Handle different response formats
+      let count = 0;
+      if (Array.isArray(serviceTypes)) {
+        count = serviceTypes.length;
+      } else if (serviceTypes && Array.isArray(serviceTypes.data)) {
+        count = serviceTypes.data.length;
+      } else if (serviceTypes && serviceTypes.serviceTypes && Array.isArray(serviceTypes.serviceTypes)) {
+        count = serviceTypes.serviceTypes.length;
+      }
+
+      setSuccess(`✅ Connection successful! Found ${count} service types.`);
     } catch (err) {
       setError(`❌ Connection failed: ${err.message}`);
     } finally {
@@ -162,17 +212,8 @@ const VendorForm = ({ onVendorAdded }) => {
         </button>
       </div>
 
-      {success && (
-        <div className="alert alert-success">
-          ✓ {success}
-        </div>
-      )}
-
-      {error && (
-        <div className="alert alert-error">
-          ✗ {error}
-        </div>
-      )}
+      {success && <div className="alert alert-success">✓ {success}</div>}
+      {error && <div className="alert alert-error">✗ {error}</div>}
 
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -186,9 +227,7 @@ const VendorForm = ({ onVendorAdded }) => {
             className={validationErrors.name ? 'error' : ''}
             placeholder="Enter vendor name"
           />
-          {validationErrors.name && (
-            <div className="field-error">{validationErrors.name}</div>
-          )}
+          {validationErrors.name && <div className="field-error">{validationErrors.name}</div>}
         </div>
 
         <div className="form-group">
@@ -215,9 +254,7 @@ const VendorForm = ({ onVendorAdded }) => {
             placeholder="9876543210"
             maxLength="10"
           />
-          {validationErrors.contact && (
-            <div className="field-error">{validationErrors.contact}</div>
-          )}
+          {validationErrors.contact && <div className="field-error">{validationErrors.contact}</div>}
         </div>
 
         <div className="form-group">
@@ -232,9 +269,7 @@ const VendorForm = ({ onVendorAdded }) => {
             placeholder="22AAAAA0000A1Z5"
             maxLength="15"
           />
-          {validationErrors.gstTanCin && (
-            <div className="field-error">{validationErrors.gstTanCin}</div>
-          )}
+          {validationErrors.gstTanCin && <div className="field-error">{validationErrors.gstTanCin}</div>}
         </div>
 
         <div className="form-row">
@@ -249,9 +284,7 @@ const VendorForm = ({ onVendorAdded }) => {
               className={validationErrors.bankAcc ? 'error' : ''}
               placeholder="123456789012"
             />
-            {validationErrors.bankAcc && (
-              <div className="field-error">{validationErrors.bankAcc}</div>
-            )}
+            {validationErrors.bankAcc && <div className="field-error">{validationErrors.bankAcc}</div>}
           </div>
 
           <div className="form-group">
@@ -266,9 +299,7 @@ const VendorForm = ({ onVendorAdded }) => {
               placeholder="HDFC0001234"
               maxLength="11"
             />
-            {validationErrors.ifsc && (
-              <div className="field-error">{validationErrors.ifsc}</div>
-            )}
+            {validationErrors.ifsc && <div className="field-error">{validationErrors.ifsc}</div>}
           </div>
         </div>
 
@@ -285,6 +316,77 @@ const VendorForm = ({ onVendorAdded }) => {
           </label>
         </div>
 
+        {/* Service type and TDS rate section */}
+        <h3>Services & TDS</h3>
+        {validationErrors.services && <div className="field-error">{validationErrors.services}</div>}
+
+        {selectedServices.map((service, index) => (
+          <div className="service-entry" key={index}>
+            <div className="form-group">
+              <label>Service Type</label>
+              <select
+                value={service.serviceTypeId}
+                onChange={(e) => {
+                  const updated = [...selectedServices];
+                  updated[index].serviceTypeId = e.target.value;
+                  setSelectedServices(updated);
+                }}
+                className={validationErrors.services ? 'error' : ''}
+              >
+                <option value="">-- Select Service Type --</option>
+                {/* Ensure serviceTypeOptions is always an array before mapping */}
+                {Array.isArray(serviceTypeOptions) && serviceTypeOptions.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>TDS Rate (%)</label>
+              <input
+                type="number"
+                value={service.tdsRate}
+                onChange={(e) => {
+                  const updated = [...selectedServices];
+                  updated[index].tdsRate = e.target.value;
+                  setSelectedServices(updated);
+                }}
+                placeholder="e.g. 5.0"
+                min="0"
+                max="30"
+                step="0.1"
+                className={validationErrors.services ? 'error' : ''}
+              />
+            </div>
+
+            {selectedServices.length > 1 && (
+              <button
+                type="button"
+                onClick={() => {
+                  const updated = [...selectedServices];
+                  updated.splice(index, 1);
+                  setSelectedServices(updated);
+                }}
+                className="remove-service-btn"
+              >
+                Remove Service
+              </button>
+            )}
+          </div>
+        ))}
+
+        <button
+          type="button"
+          onClick={() =>
+            setSelectedServices([...selectedServices, { serviceTypeId: '', tdsRate: '' }])
+          }
+          className="add-service-btn"
+        >
+          + Add Another Service
+        </button>
+
         <button type="submit" disabled={loading} className="submit-btn">
           {loading ? (
             <>
@@ -296,6 +398,19 @@ const VendorForm = ({ onVendorAdded }) => {
           )}
         </button>
       </form>
+
+      {/* Debug information */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f0f0f0', fontSize: '12px' }}>
+          <strong>Debug Info:</strong>
+          <br />
+          Service Types Count: {Array.isArray(serviceTypeOptions) ? serviceTypeOptions.length : 'Not an array'}
+          <br />
+          Service Types Type: {typeof serviceTypeOptions}
+          <br />
+          Service Types: {JSON.stringify(serviceTypeOptions, null, 2)}
+        </div>
+      )}
     </div>
   );
 };

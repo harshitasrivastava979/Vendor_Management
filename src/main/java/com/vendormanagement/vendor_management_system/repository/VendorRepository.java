@@ -13,4 +13,5 @@ public interface VendorRepository extends JpaRepository<Vendor, UUID> {
 
     boolean existsByName(String name);
 
+
 }

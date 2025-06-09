@@ -1,8 +1,11 @@
 package com.vendormanagement.vendor_management_system.controller;
 
 import com.vendormanagement.vendor_management_system.dto.VendorRequestDto;
+import com.vendormanagement.vendor_management_system.dto.VendorServiceRequestDto;
 import com.vendormanagement.vendor_management_system.entity.Vendor;
+import com.vendormanagement.vendor_management_system.entity.VendorService;
 import com.vendormanagement.vendor_management_system.repository.VendorRepository;
+import com.vendormanagement.vendor_management_system.repository.VendorServiceRepository;
 import com.vendormanagement.vendor_management_system.service.VendorServiceHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,7 +23,9 @@ public class VendorController {
     private VendorRepository vendorRepository;
     @Autowired
     @Qualifier("vendorImp")
-    private VendorServiceHandler vendorService;
+    private VendorServiceHandler vendorServiceHandler;
+    @Autowired
+    private VendorServiceRepository vendorServiceRepository ;
 
     @GetMapping
     public List<Vendor> getAllVendors() {
@@ -28,21 +33,26 @@ public class VendorController {
     }
     @GetMapping("/{id}")
     public Vendor getVendorById(@PathVariable UUID id){
-        return vendorService.getVendorbyId( id);
+        return vendorServiceHandler.getVendorbyId( id);
 
 
     }
 
     @PostMapping
     public Vendor createVendor(@RequestBody VendorRequestDto dto) {
-        return vendorService.createVendor(dto);
+        return vendorServiceHandler.createVendor(dto);
     }
    @DeleteMapping("/{id}")
    public ResponseEntity<String> deleteVendor(@PathVariable UUID id){
 
-         vendorService.deleteVendor(id) ;
+         vendorServiceHandler.deleteVendor(id) ;
          return ResponseEntity.ok("Vendor Delete Successfully");
    }
+    @GetMapping("/vendor-services")
+    public ResponseEntity<List<VendorServiceRequestDto>> getVendorServices() {
+        List<VendorServiceRequestDto> result = vendorServiceHandler.getVendorsWithServicesAssignment();
+        return ResponseEntity.ok(result);
+    }
 
 
     @GetMapping("/test")
