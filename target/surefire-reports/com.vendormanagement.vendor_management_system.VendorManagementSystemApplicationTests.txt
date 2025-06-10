@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.vendormanagement.vendor_management_system.VendorManagementSystemApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 9.987 s -- in com.vendormanagement.vendor_management_system.VendorManagementSystemApplicationTests
