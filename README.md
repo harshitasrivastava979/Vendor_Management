@@ -8,6 +8,7 @@ A full-stack vendor and invoice management system built with **React** (frontend
 - 🧾 Create and track invoices per vendor
 - 📁 Upload and view invoice files (PDFs/Images)
 - 🔐 Role-based access control
+- 📤 Export invoices to Excel/CSV
 - 🖥️ Responsive and modern React frontend
 - ☁️ AWS S3 integration for file storage
 
@@ -44,69 +45,6 @@ AWS_REGION=your-region
 AWS_ACCESS_KEY=your-access-key
 AWS_SECRET_KEY=your-secret-key
 AWS_S3_BUCKET=your-s3-bucket-name
-```
-
-## 🚀 Getting Started
-
-### Backend Setup
-
-```bash
-cd backend
-mvn clean install
-mvn spring-boot:run
-```
-Backend runs at: `http://localhost:8080`
-
-### Frontend Setup
-
-```bash
-cd frontend
-npm install
-npm start
-```
-Frontend runs at: `http://localhost:3000`
-
-## 🧪 API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/vendors` | List all vendors |
-| POST | `/api/vendors` | Create new vendor |
-| GET | `/api/invoices` | List all invoices |
-| POST | `/api/invoices` | Create new invoice |
-| POST | `/api/invoices/{id}/upload` | Upload invoice document |
-
-## 📁 Project Structure
-
-```
-vendor-management-system/
-│   ├── src/main/java/com/vendormanagement/
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── repository/
-│   │   └── model/
-│   └── pom.xml
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── services/
-│   └── package.json
-└── README.md
-```
-
-## 🧠 System Design
-
-📊 **ER Diagram** *(coming soon)*  
-🏗️ **System Architecture** *(coming soon)*
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/new-feature`)
-3. Commit changes (`git commit -m 'Add new feature'`)
-4. Push to branch (`git push origin feature/new-feature`)
-5. Open a Pull Request
 
 ## 📄 License
 
